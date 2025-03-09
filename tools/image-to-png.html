@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PNG Converter - Multi-Tools</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="../css/style.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <i class="fas fa-image"></i>
+                <h1>Image to PNG Converter</h1>
+                <p class="lead">Convert your images to PNG format easily and quickly</p>
+            </div>
+
+            <div class="tool-content">
+                <!-- File Upload Section -->
+                <div class="mb-4">
+                    <div class="upload-area text-center p-5 border rounded">
+                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                        <h4>Drop your image here</h4>
+                        <p>or</p>
+                        <input type="file" id="imageInput" class="d-none" accept="image/*">
+                        <button class="btn btn-primary" onclick="document.getElementById('imageInput').click()">
+                            Choose File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div id="previewSection" class="mb-4" style="display: none;">
+                    <h4>Preview</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Original Image</div>
+                                <div class="card-body">
+                                    <img id="originalPreview" class="img-fluid" alt="Original image preview">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">PNG Preview</div>
+                                <div class="card-body">
+                                    <img id="pngPreview" class="img-fluid" alt="PNG preview">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convert Button -->
+                <div class="text-center">
+                    <button id="convertBtn" class="btn btn-success btn-lg" disabled>
+                        Convert to PNG
+                    </button>
+                </div>
+
+                <!-- Loading Animation -->
+                <div class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Converting your image...</p>
+                </div>
+
+                <!-- Error Message -->
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Section -->
+        <section class="ad-section my-4">
+            <div class="ad-placeholder">
+                <div class="text-center p-4 bg-light">
+                    <p>Advertisement Space</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="../js/main.js"></script>
+    <!-- Tool Specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('imageInput');
+            const convertBtn = document.getElementById('convertBtn');
+            const previewSection = document.getElementById('previewSection');
+            const originalPreview = document.getElementById('originalPreview');
+            const pngPreview = document.getElementById('pngPreview');
+            const loading = document.querySelector('.loading');
+            const errorMessage = document.querySelector('.error-message');
+
+            // Handle file input change
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            originalPreview.src = e.target.result;
+                            pngPreview.src = e.target.result;
+                            previewSection.style.display = 'block';
+                            convertBtn.disabled = false;
+                            errorMessage.classList.remove('active');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        showError('Please select a valid image file.');
+                    }
+                }
+            });
+
+            // Handle convert button click
+            convertBtn.addEventListener('click', function() {
+                loading.classList.add('active');
+                convertBtn.disabled = true;
+
+                // Simulate conversion process
+                setTimeout(function() {
+                    // In a real implementation, this would be where the actual conversion happens
+                    const link = document.createElement('a');
+                    link.download = 'converted-image.png';
+                    link.href = pngPreview.src;
+                    link.click();
+
+                    loading.classList.remove('active');
+                    convertBtn.disabled = false;
+                }, 1500);
+            });
+
+            // Show error message
+            function showError(message) {
+                document.getElementById('errorText').textContent = message;
+                errorMessage.classList.add('active');
+                previewSection.style.display = 'none';
+                convertBtn.disabled = true;
+            }
+
+            // Handle drag and drop
+            const dropArea = document.querySelector('.upload-area');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropArea.classList.add('border-primary');
+            }
+
+            function unhighlight(e) {
+                dropArea.classList.remove('border-primary');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                imageInput.files = dt.files;
+                imageInput.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+</body>
+</html> 
